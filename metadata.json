@@ -1,0 +1,6 @@
+{
+  "name": "KreditKu - Platform Buku Kredit Digital Multi-Tenant",
+  "description": "Aplikasi manajemen kredit barang dan pinjaman angsuran multi-user multi-tenant dengan isolasi data aman, cetak kwitansi, pengingat WhatsApp, dan laporan keuangan.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

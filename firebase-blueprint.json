@@ -1,0 +1,225 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User account profile linked to Firebase Auth UID",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 256 },
+        "displayName": { "type": "string", "maxLength": 128 },
+        "photoURL": { "type": "string", "maxLength": 1024 },
+        "tenantId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string" },
+        "lastLoginAt": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "suspended"] }
+      },
+      "required": ["uid", "email", "tenantId", "status"]
+    },
+    "Tenant": {
+      "title": "Tenant",
+      "description": "Business or credit organization owned by a user",
+      "type": "object",
+      "properties": {
+        "tenantId": { "type": "string", "maxLength": 128 },
+        "ownerUid": { "type": "string", "maxLength": 128 },
+        "businessName": { "type": "string", "maxLength": 128 },
+        "ownerName": { "type": "string", "maxLength": 128 },
+        "phone": { "type": "string", "maxLength": 32 },
+        "businessAddress": { "type": "string", "maxLength": 512 },
+        "logoUrl": { "type": "string", "maxLength": 1024 },
+        "status": { "type": "string", "enum": ["active", "suspended"] },
+        "subscriptionStatus": { "type": "string", "enum": ["active", "trial", "expired"] },
+        "subscriptionPlan": { "type": "string", "enum": ["basic", "pro", "enterprise"] },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["tenantId", "ownerUid", "businessName", "status"]
+    },
+    "Customer": {
+      "title": "Customer",
+      "description": "Customer/Debtor registered under a tenant",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "tenantId": { "type": "string", "maxLength": 128 },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 128 },
+        "phone": { "type": "string", "maxLength": 32 },
+        "address": { "type": "string", "maxLength": 512 },
+        "photoUrl": { "type": "string", "maxLength": 1024 },
+        "notes": { "type": "string", "maxLength": 1024 },
+        "status": { "type": "string", "enum": ["active", "archived"] },
+        "isDeleted": { "type": "boolean" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "tenantId", "ownerId", "name", "phone", "status"]
+    },
+    "Loan": {
+      "title": "Loan",
+      "description": "Installment loan or goods credit granted to a customer",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "tenantId": { "type": "string", "maxLength": 128 },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "customerId": { "type": "string", "maxLength": 128 },
+        "customerName": { "type": "string", "maxLength": 128 },
+        "customerPhone": { "type": "string", "maxLength": 32 },
+        "type": { "type": "string", "enum": ["barang", "uang"] },
+        "itemName": { "type": "string", "maxLength": 128 },
+        "itemPrice": { "type": "number" },
+        "downPayment": { "type": "number" },
+        "totalLoanAmount": { "type": "number" },
+        "totalPaid": { "type": "number" },
+        "remainingAmount": { "type": "number" },
+        "installmentAmount": { "type": "number" },
+        "tenor": { "type": "number" },
+        "tenorUnit": { "type": "string", "enum": ["bulan", "minggu", "hari"] },
+        "startDate": { "type": "string" },
+        "dueDate": { "type": "string" },
+        "notes": { "type": "string", "maxLength": 512 },
+        "status": { "type": "string", "enum": ["active", "paid_off", "defaulted", "cancelled"] },
+        "isDeleted": { "type": "boolean" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "tenantId", "ownerId", "customerId", "type", "totalLoanAmount", "status"]
+    },
+    "Installment": {
+      "title": "Installment",
+      "description": "Specific installment schedule bill for a loan",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "tenantId": { "type": "string", "maxLength": 128 },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "loanId": { "type": "string", "maxLength": 128 },
+        "customerId": { "type": "string", "maxLength": 128 },
+        "installmentNumber": { "type": "number" },
+        "dueDate": { "type": "string" },
+        "amount": { "type": "number" },
+        "paidAmount": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "partial", "paid", "late"] },
+        "paidAt": { "type": "string" },
+        "isDeleted": { "type": "boolean" }
+      },
+      "required": ["id", "tenantId", "ownerId", "loanId", "customerId", "installmentNumber", "dueDate", "amount", "status"]
+    },
+    "Payment": {
+      "title": "Payment",
+      "description": "Recorded customer payment transaction",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "tenantId": { "type": "string", "maxLength": 128 },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "loanId": { "type": "string", "maxLength": 128 },
+        "installmentId": { "type": "string", "maxLength": 128 },
+        "customerId": { "type": "string", "maxLength": 128 },
+        "customerName": { "type": "string", "maxLength": 128 },
+        "amount": { "type": "number" },
+        "paymentMethod": { "type": "string", "enum": ["cash", "transfer", "qris"] },
+        "paymentDate": { "type": "string" },
+        "receiptNumber": { "type": "string", "maxLength": 64 },
+        "notes": { "type": "string", "maxLength": 512 },
+        "status": { "type": "string", "enum": ["valid", "void"] },
+        "voidReason": { "type": "string", "maxLength": 256 },
+        "voidedAt": { "type": "string" },
+        "isDeleted": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "tenantId", "ownerId", "loanId", "customerId", "amount", "paymentDate", "receiptNumber", "status"]
+    },
+    "Setting": {
+      "title": "Setting",
+      "description": "Tenant specific configuration settings",
+      "type": "object",
+      "properties": {
+        "tenantId": { "type": "string", "maxLength": 128 },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "defaultTenor": { "type": "number" },
+        "defaultTenorUnit": { "type": "string", "enum": ["bulan", "minggu", "hari"] },
+        "whatsappReminderTemplate": { "type": "string", "maxLength": 2048 },
+        "whatsappReceiptTemplate": { "type": "string", "maxLength": 2048 },
+        "invoiceHeader": { "type": "string", "maxLength": 256 },
+        "currency": { "type": "string", "maxLength": 16 },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["tenantId", "ownerId"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "Notification records for a tenant",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "tenantId": { "type": "string", "maxLength": 128 },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 128 },
+        "message": { "type": "string", "maxLength": 512 },
+        "type": { "type": "string", "enum": ["due_today", "overdue", "payment_received", "system"] },
+        "isRead": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "tenantId", "ownerId", "title", "message", "type"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Immutable audit log event for tenant activity tracking",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "tenantId": { "type": "string", "maxLength": 128 },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "uid": { "type": "string", "maxLength": 128 },
+        "userName": { "type": "string", "maxLength": 128 },
+        "action": { "type": "string", "maxLength": 64 },
+        "entityType": { "type": "string", "maxLength": 64 },
+        "entityId": { "type": "string", "maxLength": 128 },
+        "description": { "type": "string", "maxLength": 512 },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "tenantId", "ownerId", "uid", "action", "description"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User profiles bound to Firebase Auth UID"
+    },
+    "/tenants/{tenantId}": {
+      "schema": { "$ref": "#/entities/Tenant" },
+      "description": "Tenant business records"
+    },
+    "/customers/{customerId}": {
+      "schema": { "$ref": "#/entities/Customer" },
+      "description": "Customers belonging to a specific tenant"
+    },
+    "/loans/{loanId}": {
+      "schema": { "$ref": "#/entities/Loan" },
+      "description": "Loans belonging to a specific tenant"
+    },
+    "/installments/{installmentId}": {
+      "schema": { "$ref": "#/entities/Installment" },
+      "description": "Installment schedules for loans belonging to a tenant"
+    },
+    "/payments/{paymentId}": {
+      "schema": { "$ref": "#/entities/Payment" },
+      "description": "Payment records for a tenant"
+    },
+    "/settings/{tenantId}": {
+      "schema": { "$ref": "#/entities/Setting" },
+      "description": "Tenant configuration settings"
+    },
+    "/notifications/{notificationId}": {
+      "schema": { "$ref": "#/entities/Notification" },
+      "description": "Notifications for tenant"
+    },
+    "/audit_logs/{logId}": {
+      "schema": { "$ref": "#/entities/AuditLog" },
+      "description": "Immutable audit trails for tenant"
+    }
+  }
+}

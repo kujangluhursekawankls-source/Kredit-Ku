@@ -1,0 +1,110 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[-a-zA-Z0-9_]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    // USERS COLLECTION
+    match /users/{uid} {
+      allow get: if isOwner(uid);
+      allow list: if isSignedIn() && resource.data.uid == request.auth.uid;
+      allow create: if isOwner(uid) && incoming().uid == request.auth.uid;
+      allow update: if isOwner(uid) && incoming().uid == existing().uid && incoming().tenantId == existing().tenantId;
+      allow delete: if false;
+    }
+
+    // TENANTS COLLECTION
+    match /tenants/{tenantId} {
+      allow get: if isSignedIn() && isValidId(tenantId) && (resource.data.ownerUid == request.auth.uid);
+      allow list: if isSignedIn() && resource.data.ownerUid == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(tenantId) && incoming().ownerUid == request.auth.uid;
+      allow update: if isSignedIn() && isValidId(tenantId) && existing().ownerUid == request.auth.uid && incoming().ownerUid == existing().ownerUid;
+      allow delete: if false;
+    }
+
+    // CUSTOMERS COLLECTION
+    match /customers/{customerId} {
+      allow get: if isSignedIn() && isValidId(customerId) && resource.data.ownerId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(customerId) && incoming().ownerId == request.auth.uid;
+      allow update: if isSignedIn() && isValidId(customerId) && existing().ownerId == request.auth.uid && incoming().ownerId == existing().ownerId && incoming().tenantId == existing().tenantId;
+      allow delete: if false;
+    }
+
+    // LOANS COLLECTION
+    match /loans/{loanId} {
+      allow get: if isSignedIn() && isValidId(loanId) && resource.data.ownerId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(loanId) && incoming().ownerId == request.auth.uid;
+      allow update: if isSignedIn() && isValidId(loanId) && existing().ownerId == request.auth.uid && incoming().ownerId == existing().ownerId && incoming().tenantId == existing().tenantId;
+      allow delete: if false;
+    }
+
+    // INSTALLMENTS COLLECTION
+    match /installments/{installmentId} {
+      allow get: if isSignedIn() && isValidId(installmentId) && resource.data.ownerId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(installmentId) && incoming().ownerId == request.auth.uid;
+      allow update: if isSignedIn() && isValidId(installmentId) && existing().ownerId == request.auth.uid && incoming().ownerId == existing().ownerId && incoming().tenantId == existing().tenantId;
+      allow delete: if false;
+    }
+
+    // PAYMENTS COLLECTION
+    match /payments/{paymentId} {
+      allow get: if isSignedIn() && isValidId(paymentId) && resource.data.ownerId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(paymentId) && incoming().ownerId == request.auth.uid;
+      allow update: if isSignedIn() && isValidId(paymentId) && existing().ownerId == request.auth.uid && incoming().ownerId == existing().ownerId && incoming().tenantId == existing().tenantId;
+      allow delete: if false;
+    }
+
+    // SETTINGS COLLECTION
+    match /settings/{tenantId} {
+      allow get: if isSignedIn() && isValidId(tenantId) && resource.data.ownerId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(tenantId) && incoming().ownerId == request.auth.uid;
+      allow update: if isSignedIn() && isValidId(tenantId) && existing().ownerId == request.auth.uid && incoming().ownerId == existing().ownerId && incoming().tenantId == existing().tenantId;
+      allow delete: if false;
+    }
+
+    // NOTIFICATIONS COLLECTION
+    match /notifications/{notificationId} {
+      allow get: if isSignedIn() && isValidId(notificationId) && resource.data.ownerId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(notificationId) && incoming().ownerId == request.auth.uid;
+      allow update: if isSignedIn() && isValidId(notificationId) && existing().ownerId == request.auth.uid && incoming().ownerId == existing().ownerId;
+      allow delete: if isSignedIn() && isValidId(notificationId) && existing().ownerId == request.auth.uid;
+    }
+
+    // AUDIT LOGS COLLECTION (Append-only)
+    match /audit_logs/{logId} {
+      allow get: if isSignedIn() && isValidId(logId) && resource.data.ownerId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(logId) && incoming().ownerId == request.auth.uid && incoming().uid == request.auth.uid;
+      allow update, delete: if false;
+    }
+  }
+}
